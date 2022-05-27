@@ -1,4 +1,5 @@
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.5.16 <0.9.0;
+pragma experimental ABIEncoderV2;
 
 /**
  * @title Ballot
@@ -11,9 +12,7 @@ contract Ballot {
     }
 
     struct Candidate {
-        // If you can limit the length to a certain number of bytes,
-        // always use one of bytes1 to bytes32 because they are much cheaper
-        bytes32 name;   // short name (up to 32 bytes)
+        string name;
         uint voteCount; // number of accumulated votes
     }
 
@@ -23,11 +22,15 @@ contract Ballot {
 
     Candidate[] public candidates;
 
+    Candidate[] public winners;
+
+    bool public finished;
+
     /**
      * @dev Create a new ballot to choose one of 'candidatesNames'.
      * @param candidatesNames names of candidates
      */
-    constructor(bytes32[] memory candidatesNames) {
+    constructor(string[] memory candidatesNames) public {
         chairperson = msg.sender;
 
         for (uint i = 0; i < candidatesNames.length; i++) {
@@ -41,6 +44,11 @@ contract Ballot {
         }
     }
 
+    function getCandidates() public view
+            returns (Candidate[] memory _candidates) {
+        _candidates = candidates;
+    }
+
     /**
      * @dev Give your vote to candidate 'candidates[candidate].name'.
      * @param candidate index of candidate in the candidates array
@@ -48,6 +56,7 @@ contract Ballot {
     function vote(uint candidate) public {
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
+        require(!finished, "Already finished.");
         sender.voted = true;
         sender.vote = candidate;
 
@@ -57,29 +66,50 @@ contract Ballot {
         candidates[candidate].voteCount++;
     }
 
+    function finishVoting() public {
+        finished = true;
+    }
+
+    function isFinished() public view returns (bool finished_) {
+        finished_ = finished;
+    }
+
     /**
      * @dev Computes the winning candidate taking all previous votes into account.
-     * @return winningProposal_ index of winning candidate in the candidates array
      */
-    function winningProposal() public view
-            returns (uint winningProposal_)
+    function winningProposal() public
+            returns (bool _draw, Candidate[] memory winners_)
     {
         uint winningVoteCount = 0;
+
         for (uint p = 0; p < candidates.length; p++) {
             if (candidates[p].voteCount > winningVoteCount) {  //TODO: Check if has candidates with same vote count
+                delete winners;
+
                 winningVoteCount = candidates[p].voteCount;
-                winningProposal_ = p;
+                _draw = false;
+
+                winners.push(candidates[p]);
+            }
+
+            else if(candidates[p].voteCount > 0 && candidates[p].voteCount == winningVoteCount) {
+                _draw = true;
+                winners.push(candidates[p]);
             }
         }
+
+        winners_ = winners;
     }
 
     /**
      * @dev Calls winningProposal() function to get the index of the winner contained in the candidates array and then
-     * @return winnerName_ the name of the winner
      */
-    function winnerName() public view
-            returns (bytes32 winnerName_)
+    function winnerName() public
+            returns (bool draw_, Candidate[] memory winners_)
     {
-        winnerName_ = candidates[winningProposal()].name;
+        (bool draw, Candidate[] memory candidatesWinners) = winningProposal();
+            draw_ = draw;
+            winners_ = candidatesWinners;
+
     }
 }

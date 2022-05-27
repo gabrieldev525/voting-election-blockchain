@@ -1,0 +1,36 @@
+.candidate-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    background-color: #fff;
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 1px 3px 6px rgba(0, 0, 0, .1);
+}
+.candidate-item .candidate-photo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+.candidate-item .candidate-name {
+    color: #363636;
+    display: flex;
+    text-align: center;
+    margin-top: 1rem;
+}
+.candidate-item .btn-vote {
+    border: 0;
+    padding: 1rem 2rem;
+    background-color: var(--primary-color);
+    color: #fff;
+    cursor: pointer;
+    border-radius: 14px;
+    transition: all ease-in 0.2s;
+    margin-top: 1.5rem;
+}
+.candidate-item .btn-vote:hover {
+    background-color: var(--primary-color-dark);
+    transition: all ease-in 0.2s;
+}

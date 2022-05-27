@@ -1,0 +1,17 @@
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body, html, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+}
+
+:root {
+    --primary-color: rgb(40, 149, 199);
+    --primary-color-dark: rgb(25, 126, 173);
+}
